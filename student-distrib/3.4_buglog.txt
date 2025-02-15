@@ -1,0 +1,31 @@
+1)  Problem: Getting a pagefault when setting up page table in vidmap
+
+    Solution: Fixed the index into the page table. Changed it to 34 we had it set to 0x8000 before which is greater than the number of entries in the page table (1024)
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+2)  Problem: Getting a pagefault when setting up page directory in vidmap
+
+    Solution: We were using the same page directory entry for both  video memory page and vidmap page. Changed vidmap to directory entry 34 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+3)  Problem: When squashing exceptions called system_halt for all exceptions and as well as hardware interrupts. 
+
+    Solution: Placed the system_halt call inside an if statement that only called it for exceptions
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+4)  Problem: Printing executables with cat caused them to write over its own text.  
+
+    Solution: When screen_x==79 and screen_y!=24, then we 'entered' on our screen. This allowed for the entire executable to be printed to 
+              the screen. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+5)  Problem: Pingpong was printing weirdly - there was an extra space in between each line to be printed.   
+
+    Solution: Pingpong prints a \n to the screen, and on top of that we were accidently vertical shifting as well. So, I added a flag 
+              to signal if we have already printed a \n. This ensures that we do not vertical shift and print \n.  
+
+----------------------------------------------------------------------------------------------------------------------------------------

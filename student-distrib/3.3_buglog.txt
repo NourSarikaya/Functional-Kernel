@@ -1,0 +1,67 @@
+1)  Problem:  The file_read file_pos is incorrect because the file_pos never gets set to its current position (length+file_pos).
+        
+    Solution: This was a simple fix by updating the file_pos by adding length to file_pos before returning from the function.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+2)  Problem:  C Syntax error (still compiles correctly, so it's hard to notice) where setting the size of a buffer with a 
+              variable.    
+        
+    Solution: Initialize the buffer size directly with an integer instead of using a variable fixed the issue.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+3)  Problem:  Terminal scrolling vertical shifting brakes when running counter. 
+        
+    Solution: Instead of implementing the vertical shifts inside terminal write, moved that to putc inside lib.c. This fixed the issue.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+4)  Problem:  Page error due to allocating too much memory (inode->length_bytes) on stack when filling in executable file's content into 
+              filebuf (buffer that we used to obtain the correct EIP:byte 24-27)  
+    
+    Solution: Changes the size to allocate on stack to 40 (the header that's necessary to read), which fixed the stack memeory/page 
+              issue.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+5)  Problem:  Could not halt properly, moves on to execute again (for files that needs inputs - hello.exe) before current process is 
+              over. 
+    
+    Solution: Need to flush the TLB, which fixed the issue.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+6)  Problem:  When restoring the registers in halt, the registers are not being restored with the correct values.
+    
+    Solution: The number of address offsets added weren't correct, changed to the correct offsets that fixed this issue.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+7)  Problem:  Page Faulting when running system_halt.
+
+    Solution: Set the esp to eip (which was wrong) instead of setting it to ebp. After making the change, the issue was fixed.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+8)  Problem:  Terminal read function was incorrect as the buffer passed in was treated as the filled keyboard buffer, not the empty
+              terminal buffer to be filled (incorrectly switched the left and right hand side of the the equal sign).
+
+    Solution: Using the getKeys() function to obtain the correct keyboard buffer values and passed in the empty terminal buffer to be 
+              filled.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+9)  Problem:  Exit resulted in infinite booting of the MP4 machine (corrupted the kernal).
+    
+    Solution: Fixed the wrong movl instruction (which dereferencing invalide address) inside context_switch by spliting one movl
+              operation into two: movl then add the offsets. This fixed the issue.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+10) Problem:  Counter didn't work because the buffer is always filled up with /0 (null characters), so nothing is being printed to
+              screen.
+    
+    Solution: Also, caused by not flushing the TLB. Flushing the TLB properly fixed this issue.
+
+----------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,74 @@
+1)  Problem:   When Capslock was on our keys associated with numbers printed their "upper" values to the screen when they were not 
+               supposed to.   
+        
+    Solution:  This was a simple overlook from before. We added in an extra if statement into our keyboard handler that ensured that our
+               number keys were not made capitalized unless the shift key was pressed and held down. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+2)  Problem:   Forgot to disable interrupts when we are changing the RTC rate.   
+        
+    Solution:  All we did was add cli() and sti() to our code to ensure that nothing weird happens to the RTC when we are trying to 
+               change the rate while the RTC is firing. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+3)  Problem:   We would get a page fault when we would try to print our dentry values for our file driver helper functions 
+               (read_dentry_by_name and read_dentry_by_index) in tests.c. 
+        
+    Solution:  For this, I was passing in a dentry POINTER to these functions inside of tests.c insetad of a normal dentry variable. 
+               Passing in a normal variable actually allowed for the contents of the input dentry to be changed. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+4)  Problem:   When typing in our terminal, tab and enter at the bottom of the terminal would not lead to vertical scrolling. 
+    
+    Solution:  In our keyboard handler, before we started printing anything to the screen or saving anything in the buffer we checked to
+               see if enter or tab was pressed. If so, I just caleld the vertical_shift() function. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+5)  Problem:  For read_data helper function we wrote, we were not accessing the correct data blocks. 
+    
+    Solution: This was because our indexing into our file system (boot clock, inodes, data blocks) was off by 1. By adding 1 to
+              to this index, we were then able to print the correct data to the screen. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+6)  Problem:   The directory read function double printed some files when an RTC file was happened upon.  
+    
+    Solution:  For this we forgot to increment our index into our diretcory when we came across an RTC file. By doign this, we were able
+               to skip printing this file. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+7)  Problem:   Did not understand how to access the file system. We were not sure where the starting address of the file system was 
+               located. 
+
+    Solution:  Come to find out that the pointer to the file system is in kernel.c. We had to make sure to save this pointer and send it
+               our file system driver before the variable that held this value was changed. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+8)  Problem:   Tab was not being printed correctly to the screen when capslock was on. 
+
+    Solution:  In our table which links certain keycodes to a character to be printed to the screen, we accidently put in \0 in for tab
+               when capslock is pressed instead of \t. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+9)  Problem:   Trying to access global variables from other files was not working properly - the correct values were not being      
+               transferred over. 
+    
+    Solution:  I made getter functions for these variables. This ensured that I was always access the most up-to-date values for these 
+               variables. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+10)  Problem:  When running our keyboard writing test, when terminal write tries to print at the bottom of the terminal screen, it gets
+               printed at the top of the terminal. 
+    
+    Solution:  We called our vertical_shift() function a couple of times and set our screen_y to a smaller value such that our terminal 
+               write would print in the correct area. 
+
+----------------------------------------------------------------------------------------------------------------------------------------

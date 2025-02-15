@@ -1,0 +1,81 @@
+1)  Problem:  Tried to initialize IDT with a for loop.  
+        
+    Solution: For each of the gates within the IDT, a majority of the informarion stored for each gate would have been the same for 
+              most gates. So, we tried using a for loop to initialize this information, however we soon realised that some gates were 
+              being initialized to trap gates (or interrupt gates) when they should not have been. So, we took this into account by 
+              using if-else statements to check if a certain IDT vector needs a certain gate. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+2)  Problem:  Did not disable/enable interrupts in our interrupt handler (IDT). 
+        
+    Solution: Inside of our interrupt handler, we forgot to disable interrupts before checking the IDT vector. This in itself is poor   
+              practice, and so we used the cli() and sti() instructions to disable/enable interrupts. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+3)  Problem:  To have system stop when an exception/error/system call was recieved, we put a while(1) loop around the else-if      
+              statements in the interrupt handler.  
+        
+    Solution: According to the MP3 documentation, for checkpoint 1 after our system recieves an exception/error/system call, our OS     
+              should not allow any more operations to take place. To ensure this, we put an infinite while look around our else-if 
+              statements within our handler, however this led to our exception/error/system call being printed to the screen many 
+              times. So, we added this loop AFTER the statements and place nothing inside - this solved our issues. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+4)  Problem:  We mapped system calls to DECIMAL 80, not 0x80 in the IDT.  
+    
+    Solution: This was a dumb mistake on our end. To resolve this, we simply changed the system call index in the IDT from 80 to 0x80. 
+              We continued these changes into other files where the system call IDT vector (0x80) is referenced. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+5)  Problem:  Could not get certain errors/exceptions to trigger in testing.  
+    
+    Solution: For some reason, it was very hard to trigger certain errors. Divide_by_0 was easy, however no matter what we tried our 
+              bound_range_exceeded error did not work. So, we found a work-around; The line asm volatile("int $#") translates to INT $# 
+              in assembly, where this line calles whatever exception/error/system call is located at index # in the IDT. This allowed 
+              us to write test cases for all interrupts stored in the IDT. 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+6)  Problem:  Did not know we needed a macro assembly function for our interrupt handlers. 
+    
+    Solution: Originally, we tried using our general interrupt handler (written in c), and storing a pointer to this in our IDT. The 
+              issue with this was that we did not take into account that we need to store caller-saved registers and the EFLAGs 
+              register before enering the handler. Not only this, but some interrupts in the IDT push error codes onto the stack, so 
+              when the handler returns (and these codes are not properly popped off) this could ruin our stack alignment. As such, we 
+              created 2 macro assembly functions where one of which is for interrupts that do not push error codes, and the other is 
+              for ones that do.  
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+7)  Problem:  PIC initialization failed
+
+    Solution: Accidently switched outb's arguments by using (port, data). After switching it back everything
+              works as expected.  
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+8)  Problem:  Page showing up but not getting a page fault when dereferencing a different address ranges with paging turned on.
+
+    Solution: Set the page base address of the page-table entry to 0 instead of B800 which is the video memory address
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+9)  Problem:   Getting a Double fault exception after every exception, system call and other interrupts. 
+    
+    Solution:  We didn't have the PIC initialized and set up yet. Once we added the PIC stuff it worked.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+10)  Problem:   Infinite looping while implementing paging.
+    
+    Solution:  We didn't have the  4MB page set up yet and only had the 4Kb page. After we added teh 4MB page it worked as it should.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+11)  Problem:  Getting an error saying that uint32_t is not recognized .
+    
+    Solution:  We added types.h to paging.h.
+
+----------------------------------------------------------------------------------------------------------------------------------------

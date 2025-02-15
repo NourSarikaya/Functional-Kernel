@@ -1,0 +1,38 @@
+/* 
+        Context switch allows us to go from executing at privilege level 0 (kernel) to privilege level 3 (user). 
+
+        To switch from different privileges, we need to edit some registers. So, when we exit our execute function, our EIP, EFLAGS, etc. are loaded with 
+        the correct values such that a user level program can run! 
+        
+        The convention to use is the IRET instruction. Read the ISA reference manual for the details of this instruction. You
+        must set up the correct values for the user-level EIP, CS, EFLAGS, ESP, and SS registers on the kernel-mode stack, and
+        then execute an IRET instruction.  
+
+        The processor will pop the values off the stack into those registers, and by doing
+        this, will perform a privilege switch into the privilege level specified by the low 2 bites of the CS register.
+
+        What To Set Our Registers To/Set Up: 
+        CS/SS - The values for the CS and SS registers must point to the correct entries in the Global Descriptor Table that correspond to the user-mode code and stack segments, respectively.
+        EIP - The EIP you need to jump to is the entry point from bytes 24-27 of the executable that you have just loaded.
+        Create user-level stack - you may simply set the stack pointer to the bottom of the 4 MB page already holding the executable image.
+        DS - the DS register must be set to point to the correct entry in the GDT for the user mode data segment (USER DS) before you execute the IRET instruction (conversely, when an entry into the kernel happens, for example, through a system call, exception, or interrupt, you should set DS to point to the KERNEL DS segment).
+        Modify TSS - 
+        Call IRET - 
+
+        // to push into the kernel stack 
+        eip = index 24-27 bits into the page
+        CS = user_cs
+        EFLAGS = 
+        esp = 
+        SS = user_ds
+         
+        // set up the user level stack 
+        esp = bottom of 4mb page holding our executable 
+
+        //set some other user level stuff 
+        ds = user_ds 
+
+        // call iret 
+        iret 
+
+    */

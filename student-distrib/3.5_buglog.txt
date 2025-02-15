@@ -1,0 +1,53 @@
+1)  Problem:  Our cursor did not start in the correct position when we switched to a new terminal
+
+    Solution: This was because we needed to update our cursor position when we first spawned in our 3 based shells in our pit handler. 
+----------------------------------------------------------------------------------------------------------------------------------------
+2)  Problem:  Had trouble setting up the frequency for PIT.
+
+    Solution: Calculated the math for the frequency to be 100 Hz that's 10 ms as required in the cp 3.5 discussion slides.
+----------------------------------------------------------------------------------------------------------------------------------------
+3)  Problem:  PIT initialization for the MODE_COMMAND_REG is wrong (should be hex but set as integer) that led to executing the executable twice. 
+
+    Solution: Changed the initialization value to hex value that fixed the issue
+----------------------------------------------------------------------------------------------------------------------------------------
+4)  Problem:  Did not re-mapped the program image to the correct pcb. 
+
+    Solution: Create a global pcb variable that keeps track of which pcb is being running right now. 
+----------------------------------------------------------------------------------------------------------------------------------------
+5)  Problem:  Could not type in each terminal, keyboard disabled in the 3 terminals.
+
+    Solution: Added in the enable_irq() at each PIT interrupts that fixed the problem of keyboard.
+----------------------------------------------------------------------------------------------------------------------------------------
+6)  Problem:  When typing in one terminal, the typed text appears in different terminals instead of just the seen terminal (when trying to
+              implement our scheduling). 
+
+    Solution: To fix this, we created a variable which sends signal to our putc function if the char to print has come from the keyboard. 
+              If this is the case, we map video memory to the actual physical video memory. If not, video memory is mapped to the page of the
+              terminal if the terminal is not seen. 
+----------------------------------------------------------------------------------------------------------------------------------------
+7)  Problem:  Period would not print correctly - we would type it once, and it would backpsace on itself. Everything worked fine in gdb.  
+
+    Solution: We found the release code for period and we made a condition where if we go the release code for period from the keyboard, 
+              we would print a period to the screen. 
+----------------------------------------------------------------------------------------------------------------------------------------
+8)  Problem:  The addresses of the pcb were the same for different terminals, which was not correct.    
+
+    Solution: We found that we never initialized the last run pcb for our terminals to point to the correct PCBs. So, in pit.c we did this. 
+----------------------------------------------------------------------------------------------------------------------------------------
+9)  Problem:  We forgot to remap our program image to whatever process is running in the new terminal when we switched to that terminal 
+              via the keyboard. 
+
+    Solution: We called our function load_4MB_syscall_page(...) which remapped the program image to the correct virtual address. 
+----------------------------------------------------------------------------------------------------------------------------------------
+10) Problem:  Each of the terminals shared 1 shell even though 3 were spawned.  
+
+    Solution: We never initialized the last_run_pcb variable for each of the terminals. This caused all 3 terminals to have their last_run_pcb
+              be the last shell that was spawned. So, as we were spawning the 3 base shells, we set the last_run_pcb for each terminal to point
+              to the PCB of the shell that corresponded to that terminal. 
+----------------------------------------------------------------------------------------------------------------------------------------
+11) Problem:  We were never able to complete our scheduling function, and some operations would never finish (we had no idea why).   
+
+    Solution: At first we had the interrupt rate for our PIT be 10ms. This was NOT enough time for our scheduling function to complete itself, 
+              as well as for our 3 base shells to completely spawn. The PIT ended up interrupting itself when it was in the middle of doing
+              something, so we made the PIT interrupt every 50ms. This gave us more time to do everything, and our multiterminals started working.  
+----------------------------------------------------------------------------------------------------------------------------------------
